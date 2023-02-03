@@ -21,5 +21,7 @@ https://ngl-bomber.vercel.app/
  - TailwindCSS
  - Vite
  
- 
+## Inspiration 
+
+https://github.com/oxitheman/NGL
  
