@@ -1,5 +1,6 @@
 import { useState } from "react";
 import logo from "./assets/nglbomber.png";
+import { gameSlugs } from "./constants/gameSlug";
 import { randomQuestions } from "./constants/randomMessages";
 
 function App() {
@@ -29,6 +30,12 @@ function App() {
     return randomMessage;
   }
 
+  function gameSlug(): string {
+    const randomGame = gameSlugs[Math.floor(Math.random() * gameSlugs.length)];
+
+    return randomGame;
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -54,29 +61,30 @@ function App() {
             username: username,
             question: random ? messages() : message,
             deviceId: deviceId(),
+            gameSlug: gameSlug(),
           }),
         });
 
         const data = await response.json();
+        if (data.success) {
+          count++;
+          setSentMessages((prev) => prev + 1);
+        }
 
         if (data.error == 404) {
           clearInterval(intervalId);
           setError("User not found, please check the username and try again");
-          setSentMessages(0);
           setLoading(false);
         }
         if (data.error == 429) {
           clearInterval(intervalId);
-          setError("You have been blocked by instagram, try again later");
-          setSentMessages(0);
+          setError("You have been rate limited, try again later");
           setLoading(false);
         }
       } catch (error) {
         console.log(error);
       }
-      setSentMessages((prev) => prev + 1);
-      count++;
-    }, 800);
+    }, 2500);
   };
   return (
     <main className="h-screen w-screen  flex flex-col items-center p-4 bg-gradient-to-br from-[#EC1187] to-[#FF8D10]">
@@ -167,6 +175,7 @@ function App() {
               <input
                 required
                 value={repeat}
+                max={50}
                 onChange={(e) => {
                   setRepeat(Math.max(1, parseInt(e.target.value)));
                   setError("");
