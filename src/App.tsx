@@ -1,5 +1,6 @@
 import { useState } from "react";
 import logo from "./assets/nglbomber.png";
+import loader from "./assets/three-dots.svg";
 import { gameSlugs } from "./constants/gameSlug";
 import { randomQuestions } from "./constants/randomMessages";
 
@@ -44,13 +45,7 @@ function App() {
     setSentMessages(0);
 
     let count = 1;
-
-    const intervalId = setInterval(async () => {
-      if (count >= repeat) {
-        clearInterval(intervalId);
-        setLoading(false);
-      }
-
+    const postMessage = async () => {
       try {
         const response = await fetch(import.meta.env.VITE_API_URL, {
           method: "POST",
@@ -69,22 +64,39 @@ function App() {
         if (data.success) {
           count++;
           setSentMessages((prev) => prev + 1);
+          if (repeat >= count) {
+            setTimeout(() => {
+              postMessage();
+            }, 1200);
+          } else {
+            setLoading(false);
+          }
         }
 
         if (data.error == 404) {
-          clearInterval(intervalId);
-          setError("User not found, please check the username and try again");
+          setError(
+            "Sorry, couldn't find that user! Double-check the username and let's try again to see what exciting journey awaits us!"
+          );
           setLoading(false);
         }
         if (data.error == 429) {
-          clearInterval(intervalId);
-          setError("You have been rate limited, try again later");
+          setError(
+            "Server overwhelmed! Taking a breather to recover. We'll be back in a jiffy to resume the fun!"
+          );
           setLoading(false);
         }
+        if (data.error == 500) {
+          postMessage();
+        }
       } catch (error) {
+        setError(
+          "Uh-oh, something went wrong! Let's try again with some mischievous magic!"
+        );
+        setLoading(false);
         console.log(error);
       }
-    }, 2500);
+    };
+    postMessage();
   };
   return (
     <main className="h-screen w-screen  flex flex-col items-center p-4 bg-gradient-to-br from-[#EC1187] to-[#FF8D10]">
@@ -93,7 +105,8 @@ function App() {
       </header>
       <section className="lg:w-[50%] md:w-[60%] bg-gray-50 md:p-8 py-8 px-4 w-full rounded-md mt-10">
         <h1 className="text-lg font-bold text-gray-900 text-center">
-          Troll your friends, send a lot of messages
+          Get ready to bombard your friends with messages with mischief and
+          magic! Keep it fun, not harmful.
         </h1>
         <form className="w-full mt-5 flex flex-col" onSubmit={handleSubmit}>
           <div className="relative rounded-md border border-gray-300 px-3 py-2 shadow-sm focus-within:border-orange-600 focus-within:ring-1 focus-within:ring-orange-600">
@@ -104,6 +117,7 @@ function App() {
               Their @username
             </label>
             <input
+              disabled={loading}
               required
               value={username}
               onChange={(e) => {
@@ -127,6 +141,7 @@ function App() {
             </label>
             <div className="mt-1">
               <textarea
+                disabled={loading}
                 required
                 rows={4}
                 value={message}
@@ -145,6 +160,7 @@ function App() {
             <div className="relative flex items-start my-1 md:my-0 self-start md:self-auto">
               <div className="flex h-5 items-center">
                 <input
+                  disabled={loading}
                   checked={random}
                   onChange={(e) => {
                     setRandom(e.target.checked);
@@ -173,6 +189,7 @@ function App() {
                 Repeat {repeat} time(s)
               </label>
               <input
+                disabled={loading}
                 required
                 value={repeat}
                 max={50}
@@ -194,7 +211,13 @@ function App() {
               type="submit"
               className="w-full rounded-md border disabled:bg-slate-400 border-transparent bg-orange-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
             >
-              {loading ? "Sending . . ." : "Send!"}
+              {loading ? (
+                <div className="flex justify-center items-center gap-4">
+                  Sending messages <img src={loader} className='h-2' />
+                </div>
+              ) : (
+                "Send!"
+              )}
             </button>
           </div>
           {sentMessages > 0 && (
@@ -212,6 +235,17 @@ function App() {
             </div>
           )}
         </form>
+        <h1 className="text-center pt-5">
+          Created by&nbsp;
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://github.com/Yvntrix"
+            className="font-semibold text-orange-600"
+          >
+            Yvntrix
+          </a>
+        </h1>
       </section>
     </main>
   );
