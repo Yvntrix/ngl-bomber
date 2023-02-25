@@ -105,8 +105,8 @@ function App() {
       </header>
       <section className="lg:w-[50%] md:w-[60%] bg-gray-50 md:p-8 py-8 px-4 w-full rounded-md mt-10">
         <h1 className="text-lg font-bold text-gray-900 text-center">
-          Get ready to bombard your friends with messages with mischief and
-          magic! Keep it fun, not harmful.
+          Get ready to bombard your friends with messages of mischief and magic!
+          Keep it fun, not harmful.
         </h1>
         <form className="w-full mt-5 flex flex-col" onSubmit={handleSubmit}>
           <div className="relative rounded-md border border-gray-300 px-3 py-2 shadow-sm focus-within:border-orange-600 focus-within:ring-1 focus-within:ring-orange-600">
@@ -213,7 +213,7 @@ function App() {
             >
               {loading ? (
                 <div className="flex justify-center items-center gap-4">
-                  Sending messages <img src={loader} className='h-2' />
+                  Sending messages <img src={loader} className="h-2" />
                 </div>
               ) : (
                 "Send!"
